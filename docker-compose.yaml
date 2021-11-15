@@ -1,0 +1,35 @@
+# This docker-compose is ONLY for development!
+version: '3.8'
+services:
+    mongodb:
+        image: mongo:5
+        ports:
+            - 27017:27017
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+        volumes:
+            - database:/data/db
+    redis:
+        image: redis:6
+        ports:
+            - 6379:6379
+        command: redis-server --include <!!! path to config file !!!>/redis.conf
+        volumes:
+            - ./redis.conf:<!!! path to config file !!!>/redis.conf
+            - cache:/data
+    server:
+        build: ./
+        ports:
+            - 80:80
+        volumes:
+            - ./:/app
+            - /app/node_modules
+        env_file:
+            - ./.env
+        depends_on:
+            - mongodb
+            - redis
+volumes:
+    database:
+    cache:
